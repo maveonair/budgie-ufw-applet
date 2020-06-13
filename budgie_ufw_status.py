@@ -49,10 +49,10 @@ class BudgieUfwStatusApplet(Budgie.Applet):
         self.show_all()
 
     def ufw_is_enabled(self):
-        config = self._ufw_config()
+        config = self.ufw_config()
         return config['UFW']['ENABLED'] == 'yes'
 
-    def _ufw_config(self):
+    def ufw_config(self):
         with open('/etc/ufw/ufw.conf', 'r') as f:
             config_string = '[UFW]\n' + f.read()
 
