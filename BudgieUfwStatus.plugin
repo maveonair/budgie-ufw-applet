@@ -1,0 +1,9 @@
+[Plugin]
+Loader=python3
+Module=budgie_ufw_status
+Name=UFW Status Applet
+Description=Shows the status of UFW
+Authors=Fabian Mettler
+Copyright=Copyright © 2020 Fabian Mettler
+Website=https://github.com/maveonair/budgie-ufw-applet
+Icon=firewall-applet
