@@ -74,7 +74,6 @@ class BudgieUfwStatusApplet(Budgie.Applet):
         return config
 
     def update_icon(self):
-        print(f"here {self.ufw_is_enabled()}")
         if self.ufw_is_enabled():
             self.img.set_from_icon_name("firewall-applet", Gtk.IconSize.BUTTON)
         else:
