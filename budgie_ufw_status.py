@@ -20,11 +20,14 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
+import configparser
+import threading
+import time
+
 import gi.repository
 gi.require_version('Budgie', '1.0')
-from gi.repository import Budgie, GObject, Gtk
+from gi.repository import Budgie, GObject, Gtk, GLib
 
-import configparser
 
 class BudgieUfwStatus(GObject.GObject, Budgie.Plugin):
     __gtype_name__ = "BudgieUfwStatus"
@@ -35,22 +38,32 @@ class BudgieUfwStatus(GObject.GObject, Budgie.Plugin):
     def do_get_panel_widget(self, uuid):
         return BudgieUfwStatusApplet(uuid)
 
+
 class BudgieUfwStatusApplet(Budgie.Applet):
+    img = None
 
     def __init__(self, uuid):
         Budgie.Applet.__init__(self)
 
-        if self.ufw_is_enabled():
-            self.img = Gtk.Image.new_from_icon_name("firewall-applet", Gtk.IconSize.BUTTON)
-        else:
-            self.img = Gtk.Image.new_from_icon_name("firewall-applet-panic", Gtk.IconSize.BUTTON)
+        self.img = Gtk.Image.new_from_icon_name("firewall-applet", Gtk.IconSize.BUTTON)
 
+        def background_check():
+            while True:
+                GLib.idle_add(self.update_icon)
+                time.sleep(5)
+
+        self.update_icon()
         self.add(self.img)
         self.show_all()
+
+        thread = threading.Thread(target=background_check)
+        thread.daemon = True
+        thread.start()
 
     def ufw_is_enabled(self):
         config = self.ufw_config()
         return config['UFW']['ENABLED'] == 'yes'
+
 
     def ufw_config(self):
         with open('/etc/ufw/ufw.conf', 'r') as f:
@@ -59,3 +72,10 @@ class BudgieUfwStatusApplet(Budgie.Applet):
         config = configparser.ConfigParser()
         config.read_string(config_string)
         return config
+
+    def update_icon(self):
+        print(f"here {self.ufw_is_enabled()}")
+        if self.ufw_is_enabled():
+            self.img.set_from_icon_name("firewall-applet", Gtk.IconSize.BUTTON)
+        else:
+            self.img.set_from_icon_name("firewall-applet-panic", Gtk.IconSize.BUTTON)
