@@ -67,6 +67,9 @@ class BudgieUfwStatusApplet(Budgie.Applet):
 
     def ufw_config(self):
         with open('/etc/ufw/ufw.conf', 'r') as f:
+            # We add a dummy section header to
+            # use the configparser library for
+            # parsing the UFW configuration file.
             config_string = '[UFW]\n' + f.read()
 
         config = configparser.ConfigParser()
